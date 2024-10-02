@@ -1,0 +1,190 @@
+# Settings
+[settings]
+motd = "Welcome to Bottlerocket!"
+
+[settings.kernel]
+lockdown = "none"
+
+[settings.ntp]
+options = ["iburst"]
+time-servers = ["2.amazon.pool.ntp.org"]
+
+# Services
+[services.bootconfig]
+configuration-files = ["prairiedog-toml"]
+restart-commands = ["/usr/bin/prairiedog generate-boot-config"]
+
+[services.bootstrap-containers]
+configuration-files = ["host-ctr-toml", "bootstrap-containers-toml"]
+restart-commands = ["/usr/bin/bootstrap-containers create-containers"]
+
+[services.containerd]
+configuration-files = ["containerd-config-toml", "proxy-env"]
+restart-commands = ["/bin/systemctl try-restart containerd.service"]
+
+[services.dns]
+configuration-files = ["netdog-toml"]
+restart-commands = ["netdog write-resolv-conf"]
+
+[services.docker]
+configuration-files = ["docker-daemon-config", "proxy-env"]
+restart-commands = ["/bin/systemctl try-restart docker.service"]
+
+[services.host-containerd]
+configuration-files = ["proxy-env"]
+restart-commands = ["/bin/systemctl try-restart host-containerd.service"]
+
+[services.host-containers]
+configuration-files = ["host-ctr-toml", "host-containers-toml"]
+restart-commands = ["/usr/bin/host-containers"]
+
+[services.hostname]
+configuration-files = ["hostname"]
+restart-commands = ["/bin/systemctl try-restart set-hostname.service"]
+
+[services.hosts]
+configuration-files = ["hosts"]
+restart-commands = []
+
+[services.kernel-modules]
+configuration-files = ["modprobe-conf", "modules-load"]
+restart-commands = ["/usr/bin/systemctl try-restart systemd-modules-load"]
+
+[services.lockdown]
+configuration-files = ["corndog-toml"]
+restart-commands = ["/usr/bin/corndog lockdown"]
+
+[services.motd]
+configuration-files = ["motd"]
+restart-commands = []
+
+[services.ntp]
+configuration-files = ["chrony-conf"]
+restart-commands = ["/bin/systemctl try-reload-or-restart chronyd.service"]
+
+[services.pki]
+configuration-files = ["certdog-toml"]
+restart-commands = ["/usr/bin/certdog"]
+
+[services.sysctl]
+configuration-files = ["corndog-toml"]
+restart-commands = ["/usr/bin/corndog sysctl"]
+
+# Configurations
+[configuration-files.bootstrap-containers-toml]
+path = "/etc/bootstrap-containers/bootstrap-containers.toml"
+template-path = "/usr/share/templates/bootstrap-containers-toml"
+
+[configuration-files.certdog-toml]
+path = "/etc/certdog.toml"
+template-path = "/usr/share/templates/certdog-toml"
+
+[configuration-files.chrony-conf]
+path = "/etc/chrony.conf"
+template-path = "/usr/share/templates/chrony-conf"
+
+[configuration-files.containerd-config-toml]
+path = "/etc/containerd/config.toml"
+template-path = "/usr/share/templates/containerd-config-toml_basic"
+
+[configuration-files.corndog-toml]
+path = "/etc/corndog.toml"
+template-path = "/usr/share/templates/corndog-toml"
+
+[configuration-files.docker-daemon-config]
+path = "/etc/docker/daemon.json"
+template-path = "/usr/share/templates/docker-daemon-json"
+
+[configuration-files.host-containers-toml]
+path = "/etc/host-containers/host-containers.toml"
+template-path = "/usr/share/templates/host-containers-toml"
+
+[configuration-files.host-ctr-toml]
+path = "/etc/host-containers/host-ctr.toml"
+template-path = "/usr/share/templates/host-ctr-toml"
+
+[configuration-files.hostname]
+path = "/etc/network/hostname.env"
+template-path = "/usr/share/templates/hostname-env"
+
+[configuration-files.hosts]
+path = "/etc/hosts"
+template-path = "/usr/share/templates/hosts"
+
+[configuration-files.modprobe-conf]
+path = "/etc/modprobe.d/modprobe.conf"
+template-path = "/usr/share/templates/modprobe-conf"
+
+[configuration-files.modules-load]
+path = "/etc/modules-load.d/modules-load.conf"
+template-path = "/usr/share/templates/modules-load"
+
+[configuration-files.motd]
+path = "/etc/motd"
+template-path = "/usr/share/templates/motd"
+
+[configuration-files.netdog-toml]
+path = "/etc/netdog.toml"
+template-path = "/usr/share/templates/netdog-toml"
+
+[configuration-files.prairiedog-toml]
+path = "/etc/prairiedog.toml"
+template-path = "/usr/share/templates/prairiedog-toml"
+
+[configuration-files.proxy-env]
+path = "/etc/network/proxy.env"
+template-path = "/usr/share/templates/proxy-env"
+
+# Settings Metadata
+[metadata.settings.boot]
+affected-services = ["bootconfig"]
+setting-generator = "/usr/bin/prairiedog generate-boot-settings"
+
+[metadata.settings.bootstrap-containers]
+affected-services = ["bootstrap-containers"]
+
+[metadata.settings.container-registry]
+affected-services = ["docker", "host-containers", "bootstrap-containers"]
+
+[metadata.settings.container-registry.credentials]
+affected-services = ["host-containers", "bootstrap-containers"]
+
+[metadata.settings.container-registry.mirrors]
+affected-services = ["docker", "host-containers", "bootstrap-containers"]
+
+[metadata.settings.container-runtime]
+affected-services = ["containerd"]
+
+[metadata.settings.dns]
+affected-services = ["dns"]
+
+[metadata.settings.host-containers]
+affected-services = ["host-containers"]
+
+[metadata.settings.kernel.lockdown]
+affected-services = ["lockdown"]
+
+[metadata.settings.kernel.modules]
+affected-services = ["kernel-modules"]
+
+[metadata.settings.kernel.sysctl]
+affected-services = ["sysctl"]
+
+[metadata.settings.motd]
+affected-services = ["motd"]
+
+[metadata.settings.network]
+affected-services = ["containerd", "docker", "host-containerd", "host-containers"]
+
+[metadata.settings.network.hostname]
+affected-services = ["hostname", "hosts"]
+setting-generator = "netdog generate-hostname"
+
+[metadata.settings.network.hosts]
+affected-services = ["hosts"]
+
+[metadata.settings.ntp]
+affected-services = ["ntp"]
+
+[metadata.settings.pki]
+affected-services = ["pki", "docker"]

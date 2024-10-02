@@ -1,0 +1,7 @@
+[workspace]
+resolver = "1"
+
+members = [
+    "settings-defaults/ootb-k8s",
+    "settings-plugins/ootb-k8s",
+]
